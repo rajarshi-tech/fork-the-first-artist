@@ -90,11 +90,11 @@ Every row is one commit and one PR. Each step must, on its own, leave the tree t
 | 05 | `feat(payments): /ask paywall (verify→serve→settle)` | `payments/src/{paywall,meter}.ts` | a failed answer is never charged |
 | 06 | `feat(payments): server + tests` | `payments/src/{server,index}.ts`, `payments/test/*` | 13 tests green, `tsc --noEmit` clean |
 | 07 | `feat(payments): README + tip-token script` | `payments/README.md`, `payments/scripts/` | HTS fractional fee = the split, on the asset |
-| 08 | `feat(agent): provider interface + registry` | `agent/{package,tsconfig,.env.example,src/types.ts,src/config.ts,src/providers/*}` | provider is config data, never code |
-| 09 | `feat(agent): fence + budget` | `agent/src/{fence,budget}.ts`, `agent/data/artist.json` | injections cannot escape the fence; ceilings before network |
-| 10 | `feat(agent): steward + tools + providers tests` | `agent/src/{steward,tools}.ts`, `agent/test/*` | structured output validated, one repair turn, no silent model swap |
-| 11 | `feat(agent): x402 payer + server + scripts` | `agent/src/rails/payer.ts`, `agent/src/{server,http,index}.ts`, `agent/scripts/` | steward pays its own meter |
-| 12 | `feat: end-to-end demo, RUNBOOK, ideation record` | `agent/README.md`, `docs/{RUNBOOK,AGENT-IDEATION}.md`, root `package.json` | the whole loop on localhost, dev mode, zero credentials |
+| 08  ✔| `feat(agent): provider interface + registry` | `agent/{package,tsconfig,.env.example,src/types.ts,src/config.ts,src/providers/*}` | provider is config data, never code |
+| 09  ✔| `feat(agent): fence + budget` | `agent/src/{fence,budget}.ts`, `agent/data/artist.json` | injections cannot escape the fence; ceilings before network |
+| 10  ✔| `feat(agent): steward + tools + providers tests` | `agent/src/{steward,tools}.ts`, `agent/test/*` | structured output validated, one repair turn, no silent model swap |
+| 11  ✔| `feat(agent): x402 payer + server + scripts` | `agent/src/rails/payer.ts`, `agent/src/{server,http,index}.ts`, `agent/scripts/` | steward pays its own meter |
+| 12  ✔| `feat: end-to-end demo, RUNBOOK, ideation record` | `agent/README.md`, `docs/{RUNBOOK,AGENT-IDEATION}.md`, root `package.json` | the whole loop on localhost, dev mode, zero credentials |
 
 ---
 
