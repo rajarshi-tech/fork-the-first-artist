@@ -21,3 +21,14 @@ Author of all rows in this session: **Rajarshi**.
 | `agent/` | Rajarshi | steward, 0G |
 | `docs/build-log/` | Rajarshi | this log |
 | `ens/`, `frontend/` | **teammates — NOT touched by this series** | skeleton READMEs only |
+| 2026-11-06 14:30 | 01 | Rajarshi | Force-pushed branch `feat/agents-payments-provider-abstraction` → remote now points at `ce6a9dd` (old squash `12857fa` gone from remote, preserved in `.backup/`) | — | — |
+| 2026-11-06 14:31 | 01 | Rajarshi | Opened PR **#3** against teammate fork `princekeshri00/fork-the-first-artist` → https://github.com/princekeshri00/fork-the-first-artist/pull/3 | — | — |
+
+## PR index
+All PRs target `princekeshri00/fork-the-first-artist:main` from `rajarshi-tech:feat/agents-payments-provider-abstraction`. Because they share one branch they appear as a stacked series: PR #N shows steps 01..N. The per-step PR below marks the point at which that step was complete and reviewable.
+
+| Step | PR | Opened |
+|---|---|---|
+| 01 | [#3](https://github.com/princekeshri00/fork-the-first-artist/pull/3) | 2026-11-06 14:31 |
+| 2026-11-06 14:40 | 02 | Rajarshi | `payments/` scaffold: package.json (3 chain deps optional), tsconfig (typecheck only, no emit), `.env.example` with the verified `0.0.429274` testnet USDC id | — | — |
+| 2026-11-06 14:44 | 02 | Rajarshi | `src/config.ts` (env → typed Config, `decimalToAtomic` refuses to round, `live` fails fast on missing accounts) + `src/split.ts` (floor agent / subtract to artist, so shares always sum exactly) | `feat(payments): config and exact atomic money math` | 6/6 pass, tsc clean |
