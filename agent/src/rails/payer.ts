@@ -8,8 +8,26 @@
  *            with @x402/hedera, retry with X-PAYMENT, let the facilitator settle.
  *
  * `setSpendControls` is the SDK's built-in guard (per-payment cap + asset
- * allowlist) — the "spending controls for agents" requirement, enforced
+ * allowlist) - the "spending controls for agents" requirement, enforced
  * client-side as a second line of defence behind the meter's own budget.
+ *
+ * ## Why the payer wraps `fetch` instead of being called explicitly
+ *
+ * The steward does not know it is paying. It calls a provider, the provider calls
+ * `payer.fetch`, and the 402 -> sign -> retry handshake happens inside this wrapper.
+ * That is the x402 model: payment is a *transport concern*. It also means the payment
+ * code has exactly one entry point (`fetch`) and cannot be reached by a model deciding
+ * to call something - there is no `pay()` for a prompt injection to invoke.
+ *
+ * ## Two independent spend ceilings
+ *
+ * | Where | What it protects |
+ * |---|---|
+ * | `setSpendControls` here | a single payment cannot exceed `maxAmountPerPayment` |
+ * | `payments/src/meter.ts` budget gate | the steward's *total* spend over time |
+ *
+ * Neither is sufficient alone: the client cap cannot see history, the server gate
+ * cannot stop a compromised client. Both are checked.
  */
 import type { Provenance } from '../types.ts';
 
@@ -28,6 +46,13 @@ export interface PayerOptions {
   timeoutMs?: number;
 }
 
+/**
+ * Create the wallet.
+ *
+ * @returns `{ kind: 'mock' }` when no `HEDERA_AGENT_PRIVATE_KEY` is configured - the
+ *          meter must then be in `PAYMENTS_MODE=dev` to accept it. This is what makes
+ *          the whole loop runnable offline with zero credentials.
+ */
 export async function createPayer(opts: PayerOptions = {}): Promise<Payer> {
   const accountId = opts.accountId ?? process.env.HEDERA_AGENT_ACCOUNT_ID ?? '';
   const privateKey = opts.privateKey ?? process.env.HEDERA_AGENT_PRIVATE_KEY;
@@ -52,6 +77,9 @@ export async function createPayer(opts: PayerOptions = {}): Promise<Payer> {
     kind: 'hedera',
     accountId,
     async fetch(url, init) {
+      // Try unauthenticated first. A metered endpoint answers 402; anything else
+      // (200, 500, ...) is passed through untouched, so a non-payment error is never
+      // swallowed by the payment path.
       const first = await fetch(url, init);
       if (first.status !== 402) return first;
 
@@ -66,6 +94,9 @@ export async function createPayer(opts: PayerOptions = {}): Promise<Payer> {
         throw new Error(`402 from ${url} had no payment requirements: ${raw.slice(0, 200)}`);
       }
 
+      // Sign exactly what the server asked for. We do NOT invent requirements; we
+      // echo `accepts` back signed. A server asking for an asset outside the
+      // allowlist is refused by setSpendControls, not by us.
       const paymentPayload = await client.createPaymentPayload({
         x402Version: challenge.x402Version ?? 2,
         accepts: challenge.accepts,
@@ -84,6 +115,14 @@ interface X402ClientLike {
   encodePaymentSignatureHeader(payload: unknown): string;
 }
 
+/**
+ * Build the real x402 client lazily.
+ *
+ * The `import()`s are dynamic on purpose: the x402 packages and the Hedera SDK are
+ * `optionalDependencies`, so a dev-mode checkout can run with none of them installed.
+ * Only an operator who actually configured a key pays the install cost - and gets a
+ * clear error naming all three packages if they are missing.
+ */
 async function buildX402Client(opts: {
   accountId: string;
   privateKey: string;
