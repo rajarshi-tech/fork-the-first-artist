@@ -1,5 +1,26 @@
+# --- secrets: never commit these ---
 .env
 .env.*
+# ...but the templates must ship, or nobody on the team can run anything.
+# This negation has to come AFTER the ignore rule above, or git has already
+# discarded the path by the time it reads it.
+!.env.example
+
+# --- dependencies ---
 node_modules/
+
+# --- keys ---
 *.key
 *.pem
+
+# --- runtime state, not source ---
+# the spend ledger and the budget file are outputs of running the service;
+# committing them would make every demo dirty the working tree.
+payments/data/*.jsonl
+agent/data/*.jsonl
+*.log
+
+# --- local scratch, backups, session dumps ---
+# (the original squashed commit is preserved here for auditing, never pushed)
+.backup/
+pi-session-*.html
