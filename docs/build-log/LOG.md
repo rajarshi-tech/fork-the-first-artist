@@ -24,11 +24,29 @@ Author of all rows in this session: **Rajarshi**.
 | 2026-11-06 14:30 | 01 | Rajarshi | Force-pushed branch `feat/agents-payments-provider-abstraction` → remote now points at `ce6a9dd` (old squash `12857fa` gone from remote, preserved in `.backup/`) | — | — |
 | 2026-11-06 14:31 | 01 | Rajarshi | Opened PR **#3** against teammate fork `princekeshri00/fork-the-first-artist` → https://github.com/princekeshri00/fork-the-first-artist/pull/3 | — | — |
 
-## PR index
-All PRs target `princekeshri00/fork-the-first-artist:main` from `rajarshi-tech:feat/agents-payments-provider-abstraction`. Because they share one branch they appear as a stacked series: PR #N shows steps 01..N. The per-step PR below marks the point at which that step was complete and reviewable.
+## PR strategy
 
-| Step | PR | Opened |
-|---|---|---|
-| 01 | [#3](https://github.com/princekeshri00/fork-the-first-artist/pull/3) | 2026-11-06 14:31 |
+GitHub allows **one open PR per head branch**. To get one PR per step, each step gets its own branch and its own PR, stacked:
+
+```
+main (6fe2eec)
+ └── step/01-root-scaffolding          → PR #1  (base: main)
+      └── step/02-payments-config-money → PR #2  (base: step/01-root-scaffolding)
+           └── step/03-...              → PR #3  (base: step/02-...)
+```
+
+Reviewing PR #N therefore shows exactly that step's diff, because its base is the previous step. Merging all of them into `main` reproduces the full series.
+
+`feat/agents-payments-provider-abstraction` is also kept as one monolithic branch with all steps, and is what the cross-fork PR
+[**princekeshri00#3**](https://github.com/princekeshri00/fork-the-first-artist/pull/3) targets — that is the PR the teammate merges.
+
+| Step | Branch | PR (own fork) | Opened |
+|---|---|---|---|
+| 01 | `step/01-root-scaffolding` | [#1](https://github.com/rajarshi-tech/fork-the-first-artist/pull/1) | 2026-11-06 14:52 |
+| 02 | `step/02-payments-config-money` | [#2](https://github.com/rajarshi-tech/fork-the-first-artist/pull/2) | 2026-11-06 14:54 |
 | 2026-11-06 14:40 | 02 | Rajarshi | `payments/` scaffold: package.json (3 chain deps optional), tsconfig (typecheck only, no emit), `.env.example` with the verified `0.0.429274` testnet USDC id | — | — |
 | 2026-11-06 14:44 | 02 | Rajarshi | `src/config.ts` (env → typed Config, `decimalToAtomic` refuses to round, `live` fails fast on missing accounts) + `src/split.ts` (floor agent / subtract to artist, so shares always sum exactly) | `feat(payments): config and exact atomic money math` | 6/6 pass, tsc clean |
+| 2026-11-06 14:52 | 01 | Rajarshi | Branch `step/01-root-scaffolding` + own-fork PR **#1** (base `main`) | — | — |
+| 2026-11-06 14:54 | 02 | Rajarshi | Branch `step/02-payments-config-money` + own-fork PR **#2** (base `step/01-root-scaffolding`, stacked) | — | — |
+| 2026-11-06 15:05 | 03 | Rajarshi | `gate/types.ts` (Gate contract + dev mock producing the real x402-v2 shape), `gate/hedera.ts` (live facilitator client: /supported, /verify, /settle), `gate/index.ts` (async factory so the live SDK loads lazily) | — | — |
+| 2026-11-06 15:12 | 03 | Rajarshi | 6 gate tests added. Proved the optional-dependency claim empirically: `npm install --omit=optional` → no `@x402`, all 12 tests still pass | `feat(payments): payment gate interface, dev mock and Hedera/x402 implementation` | 12/12 pass, tsc clean |
